@@ -1,4 +1,4 @@
-
+## continuous collecting github traffic metrics with aws serverless 
 
 This project is a sample project to show how to use AWS CDK to deploy a lambda function to periodically collect GitHub traffic data and store it in AWS DynamoDB, without the limitation of 14 days data retention in GitHub. Currently it only supports collecting traffic data for public repositories within awslabs, you can customize the code to collect data for other repositories.
 
