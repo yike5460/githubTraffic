@@ -9,7 +9,10 @@ dev_env = Environment(
 )
 
 app = App()
-MyStack(app, "githubTraffic-dev", env=dev_env)
+
+# deploy the stack to development environment in default account/region
+MyStack(app, "githubTraffic-dev")
+
 # MyStack(app, "githubTraffic-prod", env=prod_env)
 
 app.synth()
