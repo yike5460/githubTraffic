@@ -20,3 +20,5 @@ Then you can use online json plot tool or diagram.py in repo to do the data visu
 ```
 python diagram.py
 ```
+
+![GitHubTraffic](./GitHubTraffic.png)
