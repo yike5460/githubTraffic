@@ -13,6 +13,8 @@ repo_name_list = os.environ['RepoNameList']
 # get the GitHub access token from the environment variables
 access_token = os.environ['AccessToken']
 
+AWS_GCR_SOLUTION_REPO_ROOT = 'https://api.github.com/repos/awslabs/'
+
 # Define a function to insert traffic data into DynamoDB
 def insert_traffic_data(table_name, type, timestamp, repo_name, count, uniques, referrer, path, title):
     # check if redundant data is being inserted judging by the timestamp & type, type includes clones, views, referrers, paths
@@ -68,7 +70,7 @@ def handler(_event, _context):
     for repo_name in repo_name_list.split(','):
         # get the traffic data of the repo, we could use the pyGithub to get the data due to the limitation of Lambda not support multiprocessing.Queue or multiprocessing.Pool
         repo_name = repo_name.strip()
-        response = requests.get('https://api.github.com/repos/awslabs/' + repo_name + '/traffic/views', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        response = requests.get(AWS_GCR_SOLUTION_REPO_ROOT + repo_name + '/traffic/views', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
 
         # get the total count of views check if views data is available
         if 'views' not in response.json():
@@ -84,7 +86,7 @@ def handler(_event, _context):
             insert_traffic_data(repo_name, 'views', timestamp, repo_name, count, uniques, None, None, None)
 
         # get the clone data of the repo
-        response = requests.get('https://api.github.com/repos/awslabs/' + repo_name + '/traffic/clones', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        response = requests.get(AWS_GCR_SOLUTION_REPO_ROOT + repo_name + '/traffic/clones', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
 
         # get the total count of clones check if clones data is available
         if 'clones' not in response.json():
@@ -100,7 +102,7 @@ def handler(_event, _context):
             insert_traffic_data(repo_name, 'clones', timestamp, repo_name, count, uniques, None, None, None)
 
         # get the Referring sites data of the repo
-        response = requests.get('https://api.github.com/repos/awslabs/' + repo_name + '/traffic/popular/referrers', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        response = requests.get(AWS_GCR_SOLUTION_REPO_ROOT + repo_name + '/traffic/popular/referrers', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
 
         # get the total count of Referring sites check if Referring sites data is available
         if 'referrer' in response.json()[0].keys():
@@ -115,7 +117,7 @@ def handler(_event, _context):
                 insert_traffic_data(repo_name, 'referrer', timestamp, repo_name, count, uniques, referrer, None, None)
 
         # get the Popular content data of the repo
-        response = requests.get('https://api.github.com/repos/awslabs/' + repo_name + '/traffic/popular/paths', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        response = requests.get(AWS_GCR_SOLUTION_REPO_ROOT + repo_name + '/traffic/popular/paths', headers={'Authorization': 'Bearer ' + access_token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
 
         # get the total count of Popular content check if Popular content data is available
         if 'path' in response.json()[0].keys():

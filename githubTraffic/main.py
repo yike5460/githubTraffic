@@ -36,6 +36,15 @@ class MyStack(Stack):
     rule.add_target(targets_.LambdaFunction(github_traffic))
 
     # create multiple tables to store the traffic data with table name inherited from the parameter
+    table = dynamodb.Table(self, 'githubTrafficTableSD',
+                            table_name='stable-diffusion-aws-extension',
+                            partition_key=dynamodb.Attribute(name='type', type=dynamodb.AttributeType.STRING),
+                            sort_key=dynamodb.Attribute(name='timestamp', type=dynamodb.AttributeType.STRING),
+                            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST
+                            )
+    # grant the lambda function read/write permissions to the table
+    table.grant_read_write_data(github_traffic)
+
     table = dynamodb.Table(self, 'githubTrafficTableCDN',
                             table_name='aws-cloudfront-extensions',
                             partition_key=dynamodb.Attribute(name='type', type=dynamodb.AttributeType.STRING),
