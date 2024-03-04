@@ -20,7 +20,7 @@ class MyStack(Stack):
     # create a lambda function to fetch traffic data of GitHub repositories and store it in a database
     github_traffic = lambda_.DockerImageFunction(
       self, 'githubTraffic',
-      code=lambda_.DockerImageCode.from_image_asset('lambda'),
+      code=lambda_.DockerImageCode.from_image_asset('lambda/traffic'),
       timeout = Duration.seconds(300),
     )
 
