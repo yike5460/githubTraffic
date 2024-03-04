@@ -16,7 +16,8 @@ logger.setLevel(logging.INFO)
 repo_name_list = ['comfyanonymous/ComfyUI']
 # get the GitHub access token from the environment variables
 # access_token = os.environ['AccessToken']
-access_token = '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'
+
+access_token = ''
 
 GITHUB_API_ROOT = 'https://api.github.com/repos/'
 
