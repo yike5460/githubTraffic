@@ -9,15 +9,11 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# get the repo name from the environment variables
-# repo_name_list = os.environ['RepoNameList']
+# get the repo name from the environment variables, OWNER/REPO
+repo_name_list = os.environ['RepoNameList']
 
-# OWNER/REPO
-repo_name_list = ['comfyanonymous/ComfyUI']
 # get the GitHub access token from the environment variables
-# access_token = os.environ['AccessToken']
-
-access_token = ''
+access_token = os.environ['AccessToken']
 
 GITHUB_API_ROOT = 'https://api.github.com/repos/'
 
@@ -85,32 +81,56 @@ def fetch_prs(repo_name):
             prs.append(pr_details)
     return prs
 
-# Function to invoke AWS Bedrock LLM (Claude2)
+# Function to invoke AWS Bedrock LLM (Claude2/3)
 def summarize_prs(pr_list):
     prompt = prompt_template.format(
         _pr_list=pr_list
     )
-    prompt = "\n\nHuman:{}".format(prompt) + "\n\nAssistant:"
-    modelId = "anthropic.claude-v2"
+
     accept = "*/*"
     contentType = "application/json"
+    # uncomment below code to see the difference between claude2 and claude3
+    # modelId = "anthropic.claude-v2"
+    # prompt = "\n\nHuman:{}".format(prompt) + "\n\nAssistant:"
+    # body = json.dumps(
+    #     {
+    #         "prompt": prompt,
+    #         "temperature": 0.1,
+    #         "top_p": 1,
+    #         "top_k": 0,
+    #         "max_tokens_to_sample": 500,
+    #         "stop_sequences": ["\n\nHuman:"],
+    #     }
+    # )
+    modelId = "anthropic.claude-3-sonnet-20240229-v1:0"
     body = json.dumps(
         {
-            "prompt": prompt,
+            "max_tokens": 1024,
+            "system": "claude",
+            "messages": [{"role": "user", "content": prompt}],
+            "anthropic_version": "bedrock-2023-05-31",
             "temperature": 0.1,
             "top_p": 1,
             "top_k": 0,
-            "max_tokens_to_sample": 500,
-            "stop_sequences": ["\n\nHuman:"],
+            # "stop_sequences": ["\n\nHuman:"],
         }
     )
     response = bedrock_client.invoke_model(
         body=body, modelId=modelId, accept=accept, contentType=contentType
     )
     response_body = json.loads(response.get("body").read())
-    raw_completion = response_body.get("completion").split("\n")
-    # completion = [x for x in raw_completion if x]
-    return raw_completion
+
+    # Extract the text content from the response
+    message_content = response_body.get('content')
+    if message_content and isinstance(message_content, list):
+        # Assuming the first item in the list is the one with the 'text' type
+        text_content = next((item for item in message_content if item['type'] == 'text'), {}).get('text', '')
+    else:
+        text_content = ''
+
+    # Split the text content into lines and remove empty lines
+    completion = [line for line in text_content.split("\n") if line.strip()]
+    return completion
 
 # Entry point for the Lambda function
 def handler(_event, _context):
