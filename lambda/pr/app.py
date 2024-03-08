@@ -107,6 +107,27 @@ def summarize_prs(pr_list):
         {
             "max_tokens": 1024,
             "system": "claude",
+            """ For multi-modal models, the "messages" field schema is as follows:
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "mediaType": "image/jpeg",
+                                "data": "base64_encoded_image"
+                            }
+                        }
+                        {
+                            "type": "text",
+                            "text": "what is this image about?"
+                        }
+                    ]
+                }
+            ]
+            """
             "messages": [{"role": "user", "content": prompt}],
             "anthropic_version": "bedrock-2023-05-31",
             "temperature": 0.1,
